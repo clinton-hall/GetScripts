@@ -15,3 +15,7 @@ A Collection of NZBGet Post-Process Scripts
     
 4. DeleteSamples.py
     - This will delete "sample" files from Video Downloads.
+
+5. SafeRename.py
+    - This will parse the download for any "rename.sh" or "rename.bat" scripts and then determine the correct file renaming to be applied.
+    - This removes the danger of running any downloaded .sh/.bat files.
