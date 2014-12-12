@@ -112,7 +112,7 @@ ARCHIVE = [re.compile('.r\d{2}$', re.I),
 if platform.system() == 'Windows':
     if not os.path.exists(SEVENZIP):
         print(" Could not find 7-zip, Exiting")
-        return False
+        sys.exit(NZBGET_POSTPROCESS_ERROR)
     else:
         cmd_7zip = [SEVENZIP, "x", "-y"]
         ext_7zip = [".rar", ".zip", ".tar.gz", "tgz", ".tar.bz2", ".tbz", ".tar.lzma", ".tlz", ".7z", ".xz"]
