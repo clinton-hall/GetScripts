@@ -17,7 +17,6 @@
 # Enter the Path to a plain-text file with a single password on each line.
 # Each Password will be used to attempt extraction.
 #PasswordFile="/share/Download/password.txt"
-#PASSWORDSFILE="/share/Download/password.txt"
 
 
 ## Windows
@@ -32,7 +31,7 @@
 # Niceness for external extraction process.
 #
 # Set the Niceness value for the nice command (Linux). These range from -20 (most favorable to the process) to 19 (least favorable to the process).
-niceness=10
+#niceness=10
 
 # ionice scheduling class (0, 1, 2, 3).
 #
