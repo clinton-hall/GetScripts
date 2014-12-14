@@ -254,8 +254,6 @@ for dirpath, dirnames, filenames in os.walk(os.environ['NZBPP_DIRECTORY']):
         #if fileExtension in ARCHIVE:  # If the file is an archive
         if extract(os.environ['NZBPP_DIRECTORY'], filePath):
             failed += 0
-            os.environ['NZBPP_TOTALSTATUS'] = 'SUCCESS'
-            sys.exit(NZBGET_POSTPROCESS_SUCCESS)
         else:
             failed += 1
 
