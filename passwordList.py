@@ -171,29 +171,46 @@ def extract(directory, filePath):
     success = 0
     ext = os.path.splitext(filePath)
     cmd = []
+    part = 1
 
     if ext[1] in (".gz", ".bz2", ".lzma"):
         # Check if this is a tar
         if os.path.splitext(ext[0])[1] == ".tar":
             cmd = EXTRACT_COMMANDS[".tar" + ext[1]]
-    elif ext[1] in (".1", ".01", ".001", ".part1", ".part01", ".part001") and os.path.splitext(ext[0])[1] in (".rar", ".zip", ".7z"):
-        cmd = EXTRACT_COMMANDS[os.path.splitext(ext[0])[1]]
     elif ext[1] in (".cb7", ".cba", ".cbr", ".cbt", ".cbz"):  # don't extract these comic book archives.
         print "don't extract these comic book archives"
         return True
-    else:
-        if ext[1] in EXTRACT_COMMANDS:
+    elif ext[1] in EXTRACT_COMMANDS:
+        if re.match(".part\d+", os.path.splitext(ext[0])[1]):
+            part = int(re.match(".part(\d+)", os.path.splitext(ext[0])[1]).groups())
+        if re.match(".\d+", os.path.splitext(ext[0])[1]):
+            part = int(re.match(".(\d+)", os.path.splitext(ext[0])[1]).groups())
+        if part == 1:
             cmd = EXTRACT_COMMANDS[ext[1]]
         else:
+            print("ignoring part %s" % part)
+            return True
+    elif os.path.splitext(ext[0])[1] in EXTRACT_COMMANDS:
+        if re.match(".part\d+", ext[1]):
+            part = int(re.match(".part(\d+)", ext[1]).groups())
+        if re.match(".\d+", ext[1]):
+            part = int(re.match(".(\d+)", ext[1]).groups())
+        if part == 1:
+            cmd = EXTRACT_COMMANDS[os.path.splitext(ext[0])[1]]
+        else:
+            print("ignoring part %s" % part)
+            return True
+    else:
             print("Not a known archive file type: %s" % ext[1])
             return True
 
-    if PASSWORDSFILE != "" and os.path.isfile(os.path.normpath(PASSWORDSFILE)):
+    print("Extracting %s" % (filePath))
+    if PASSWORDSFILE != "" and os.path.isfile(PASSWORDSFILE):
         passwords = [line.strip() for line in open(os.path.normpath(PASSWORDSFILE))]
+        print("Found %s passwords to try" % (len(passwords)))
     else:
         passwords = []
-        print("Extracting %s" % (filePath))
-
+        print("Could not find password file %s" % (PASSWORDSFILE))
 
     pwd = os.getcwd()  # Get our Present Working Directory
     os.chdir(directory)  # Not all unpack commands accept full paths, so just extract into this directory
