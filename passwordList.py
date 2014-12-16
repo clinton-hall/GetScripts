@@ -182,9 +182,9 @@ def extract(directory, filePath):
         return True
     elif ext[1] in EXTRACT_COMMANDS:
         if re.match(".part\d+", os.path.splitext(ext[0])[1]):
-            part = int(re.match(".part(\d+)", os.path.splitext(ext[0])[1]).groups())
+            part = int(re.match(".part(\d+)", os.path.splitext(ext[0])[1]).groups()[0])
         if re.match(".\d+", os.path.splitext(ext[0])[1]):
-            part = int(re.match(".(\d+)", os.path.splitext(ext[0])[1]).groups())
+            part = int(re.match(".(\d+)", os.path.splitext(ext[0])[1]).groups()[0])
         if part == 1:
             cmd = EXTRACT_COMMANDS[ext[1]]
         else:
@@ -192,9 +192,9 @@ def extract(directory, filePath):
             return True
     elif os.path.splitext(ext[0])[1] in EXTRACT_COMMANDS:
         if re.match(".part\d+", ext[1]):
-            part = int(re.match(".part(\d+)", ext[1]).groups())
+            part = int(re.match(".part(\d+)", ext[1]).groups()[0])
         if re.match(".\d+", ext[1]):
-            part = int(re.match(".(\d+)", ext[1]).groups())
+            part = int(re.match(".(\d+)", ext[1]).groups()[0])
         if part == 1:
             cmd = EXTRACT_COMMANDS[os.path.splitext(ext[0])[1]]
         else:
