@@ -230,8 +230,8 @@ def extract(directory, filePath):
             print("Extraction was successful for %s" % (filePath))
             success = 1
         elif len(passwords) > 0:
-            print("Attempting to extract with passwords")
             for password in passwords:
+                print("Attempting to extract with password [%s]" % password)
                 if password == "":  # if edited in windows or otherwise if blank lines.
                     continue
                 cmd2 = cmd
@@ -247,9 +247,12 @@ def extract(directory, filePath):
                     success = 1
                     break
                 else:
+                    print("Extraction failed for %s using password: %s" % (
+                    filePath, password))
                     continue
     except:
         print("Extraction failed for %s. Could not call command %s" % (filePath, cmd))
+        devnull.close()
         os.chdir(pwd)
         return False
 
