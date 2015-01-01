@@ -104,7 +104,7 @@ for dirpath, dirnames, filenames in os.walk(os.environ['NZBPP_DIRECTORY']):
     for file in filenames:
         filePath = os.path.join(dirpath, file)
         fileName, fileExtension = os.path.splitext(file)
-        if fileExtension in mediaContainer:  # If the file is a video file
+        if fileExtension in mediaContainer or ".*" in mediaContainer :  # If the file is a video file
             if is_sample(filePath, os.environ['NZBPP_NZBNAME'], os.environ['NZBPO_MAXSAMPLESIZE'], SampleIDs):  # Ignore samples
                 print "Deleting sample file: ", filePath
                 try:
