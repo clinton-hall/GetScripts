@@ -18,6 +18,7 @@ import os
 import sys
 import re
 import shlex
+from subprocess import call, Popen
 
 # NZBGet Exit Codes
 NZBGET_POSTPROCESS_PARCHECK = 92
@@ -98,7 +99,7 @@ def rename_script(dirname):
     rename_file = ""
     for dir, dirs, files in os.walk(dirname):
         for file in files:
-            if re.search('(rename\S*\.(sh|bat)$)',file,re.IGNORECASE):
+            if re.search('(rename\S*\.(sh|bat)$)',file,re.IGNORECASE) or file == 'What.sh':
                 rename_file = os.path.join(dir, file)
                 dirname = dir
                 break
@@ -107,6 +108,16 @@ def rename_script(dirname):
         for line in rename_lines:
             if re.search('^(mv|Move)', line, re.IGNORECASE):
                 cmd = shlex.split(line)[1:]
+            if re.search('^(unrar)', line, re.IGNORECASE):
+                cmd = shlex.split(line)
+                devnull = open(os.devnull, 'w')
+                print "[INFO] Extracting file %s" % (rename_file)
+                p = Popen(cmd2, stdout=devnull, stderr=devnull)  # should extract files fine.
+                res = p.wait()
+                devnull.close()
+                if res == 0:
+                    os.unlink(rename_file)
+                    rename_script(dirname)
             else:
                 continue
             if len(cmd) == 2 and os.path.isfile(os.path.join(dirname, cmd[0])):
