@@ -117,7 +117,7 @@ def rename_script(dirname):
                 p = Popen(cmd, stdout=devnull, stderr=devnull)  # should extract files fine.
                 res = p.wait()
                 devnull.close()
-                os.chrdir(pwd)
+                os.chdir(pwd)
                 if res == 0:
                     print "[INFO] Extraction was successfull"
                 else:
