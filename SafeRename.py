@@ -111,13 +111,25 @@ def rename_script(dirname):
             if re.search('^(unrar)', line, re.IGNORECASE):
                 cmd = shlex.split(line)
                 devnull = open(os.devnull, 'w')
-                print "[INFO] Extracting file %s" % (rename_file)
-                p = Popen(cmd2, stdout=devnull, stderr=devnull)  # should extract files fine.
+                print "[INFO] Extracting file %s with command %s" % (rename_file, line)
+                pwd = os.getcwd()  # Get our Present Working Directory
+                os.chdir(dirname)  # Not all unpack commands accept full paths, so just extract into this directory
+                p = Popen(cmd, stdout=devnull, stderr=devnull)  # should extract files fine.
                 res = p.wait()
                 devnull.close()
+                os.chrdir(pwd)
+                cmd = []
                 if res == 0:
-                    os.unlink(rename_file)
-                    rename_script(dirname)
+                    print "[INFO] Extraction was successfull"
+                else:
+                    print "[INFO] Extraction failed"
+                    sys.exit(NZBGET_POSTPROCESS_ERROR)
+                newfile = os.path.splitext(cmd[-1])[0] + '.sh'
+                if os.path.isfile(os.path.join(dirname, newfile)):
+                    rename_lines = [line.strip() for line in open(os.path.join(dirname, newfile))]
+                    for line in rename_lines:
+                        if re.search('^(mv|Move)', line, re.IGNORECASE):
+                            cmd = shlex.split(line)[1:]
             else:
                 continue
             if len(cmd) == 2 and os.path.isfile(os.path.join(dirname, cmd[0])):
