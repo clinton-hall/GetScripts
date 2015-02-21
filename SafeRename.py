@@ -118,13 +118,13 @@ def rename_script(dirname):
                 res = p.wait()
                 devnull.close()
                 os.chrdir(pwd)
-                cmd = []
                 if res == 0:
                     print "[INFO] Extraction was successfull"
                 else:
                     print "[INFO] Extraction failed"
                     sys.exit(NZBGET_POSTPROCESS_ERROR)
                 newfile = os.path.splitext(cmd[-1])[0] + '.sh'
+                cmd = []
                 if os.path.isfile(os.path.join(dirname, newfile)):
                     rename_lines = [line.strip() for line in open(os.path.join(dirname, newfile))]
                     for line in rename_lines:
