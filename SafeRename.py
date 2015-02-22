@@ -107,7 +107,7 @@ def rename_script(dirname):
         rename_lines = [line.strip() for line in open(rename_file)]
         for line in rename_lines:
             if re.search('^(mv|Move)', line, re.IGNORECASE):
-                cmd = shlex.split(line)[1:]
+                rename_cmd(shlex.split(line)[1:])
             if re.search('^(unrar)', line, re.IGNORECASE):
                 cmd = shlex.split(line)
                 devnull = open(os.devnull, 'w')
@@ -124,25 +124,25 @@ def rename_script(dirname):
                     print "[INFO] Extraction failed"
                     sys.exit(NZBGET_POSTPROCESS_ERROR)
                 newfile = os.path.splitext(cmd[-1])[0] + '.sh'
-                cmd = []
                 if os.path.isfile(os.path.join(dirname, newfile)):
                     rename_lines = [line.strip() for line in open(os.path.join(dirname, newfile))]
                     for line in rename_lines:
                         if re.search('^(mv|Move)', line, re.IGNORECASE):
-                            cmd = shlex.split(line)[1:]
+                            rename_cmd(shlex.split(line)[1:])
             else:
                 continue
-            if len(cmd) == 2 and os.path.isfile(os.path.join(dirname, cmd[0])):
-                orig = os.path.join(dirname, cmd[0])
-                dest = os.path.join(dirname, cmd[1].split('\\')[-1].split('/')[-1])
-                if os.path.isfile(dest):
-                    continue
-                print "[INFO] Renaming file %s to %s" % (orig, dest)
-                try:
-                    os.rename(orig, dest)
-                except Exception,e:
-                    print "[ERROR] Unable to rename file due to: %s" % (str(e))
-                    sys.exit(NZBGET_POSTPROCESS_ERROR)
+def rename_cmd(cmd):
+    if len(cmd) == 2 and os.path.isfile(os.path.join(dirname, cmd[0])):
+        orig = os.path.join(dirname, cmd[0].replace('\\',os.path.sep).replace('/',os.path.sep))
+        dest = os.path.join(dirname, cmd[1].replace('\\',os.path.sep).replace('/',os.path.sep))
+        if os.path.isfile(dest):
+            return
+        print "[INFO] Renaming file %s to %s" % (orig, dest)
+        try:
+            os.rename(orig, dest)
+        except Exception,e:
+            print "[ERROR] Unable to rename file due to: %s" % (str(e))
+            sys.exit(NZBGET_POSTPROCESS_ERROR)
 
 rename_script(dirname)
 if os.environ.has_key('NZBOP_SCRIPTDIR'):
