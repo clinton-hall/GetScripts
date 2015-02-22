@@ -124,11 +124,15 @@ def rename_script(dirname):
                     print "[INFO] Extraction failed"
                     sys.exit(NZBGET_POSTPROCESS_ERROR)
                 newfile = os.path.splitext(cmd[-1])[0] + '.sh'
+                print "[INFO] Checking for file %s" % (os.path.join(dirname, newfile))
                 if os.path.isfile(os.path.join(dirname, newfile)):
+                    print "[INFO] Reading lines from %s" % (os.path.join(dirname, newfile)) 
                     rename_lines2 = [line.strip() for line in open(os.path.join(dirname, newfile))]
                     for line2 in rename_lines2:
                         if re.search('^(mv|Move)', line2, re.IGNORECASE):
                             rename_cmd(shlex.split(line2)[1:])
+                else:
+                    print "[INFO] File %s not found" % (os.path.join(dirname, newfile))
             else:
                 continue
 def rename_cmd(cmd):
