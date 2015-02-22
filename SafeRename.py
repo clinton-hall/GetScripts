@@ -125,10 +125,10 @@ def rename_script(dirname):
                     sys.exit(NZBGET_POSTPROCESS_ERROR)
                 newfile = os.path.splitext(cmd[-1])[0] + '.sh'
                 if os.path.isfile(os.path.join(dirname, newfile)):
-                    rename_lines = [line.strip() for line in open(os.path.join(dirname, newfile))]
-                    for line in rename_lines:
-                        if re.search('^(mv|Move)', line, re.IGNORECASE):
-                            rename_cmd(shlex.split(line)[1:])
+                    rename_lines2 = [line.strip() for line in open(os.path.join(dirname, newfile))]
+                    for line2 in rename_lines2:
+                        if re.search('^(mv|Move)', line2, re.IGNORECASE):
+                            rename_cmd(shlex.split(line2)[1:])
             else:
                 continue
 def rename_cmd(cmd):
