@@ -107,7 +107,7 @@ def rename_script(dirname):
         rename_lines = [line.strip() for line in open(rename_file)]
         for line in rename_lines:
             if re.search('^(mv|Move)', line, re.IGNORECASE):
-                rename_cmd(shlex.split(line)[1:])
+                rename_cmd(shlex.split(line)[1:], dirname)
             if re.search('^(unrar)', line, re.IGNORECASE):
                 cmd = shlex.split(line)
                 devnull = open(os.devnull, 'w')
@@ -127,15 +127,16 @@ def rename_script(dirname):
                 print "[INFO] Checking for file %s" % (os.path.join(dirname, newfile))
                 if os.path.isfile(os.path.join(dirname, newfile)):
                     print "[INFO] Reading lines from %s" % (os.path.join(dirname, newfile)) 
-                    rename_lines2 = [line.strip() for line in open(os.path.join(dirname, newfile))]
+                    rename_lines2 = [line2.strip() for line2 in open(os.path.join(dirname, newfile))]
+                    print "[INFO] Parsing %s lines from %s" % (str(len(rename_lines2)), os.path.join(dirname, newfile))
                     for line2 in rename_lines2:
                         if re.search('^(mv|Move)', line2, re.IGNORECASE):
-                            rename_cmd(shlex.split(line2)[1:])
+                            rename_cmd(shlex.split(line2)[1:], dirname)
                 else:
                     print "[INFO] File %s not found" % (os.path.join(dirname, newfile))
             else:
                 continue
-def rename_cmd(cmd):
+def rename_cmd(cmd, dirname):
     if len(cmd) == 2 and os.path.isfile(os.path.join(dirname, cmd[0])):
         orig = os.path.join(dirname, cmd[0].replace('\\',os.path.sep).replace('/',os.path.sep))
         dest = os.path.join(dirname, cmd[1].replace('\\',os.path.sep).replace('/',os.path.sep))
