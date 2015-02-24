@@ -132,6 +132,12 @@ def rename_script(dirname):
                     for line2 in rename_lines2:
                         if re.search('^(mv|Move)', line2, re.IGNORECASE):
                             rename_cmd(shlex.split(line2)[1:], dirname)
+                        if re.search('^(mkdir)', line2, re.IGNORECASE):
+                            new_dir = os.path.join(dirname, shlex.split(line2)[-1])
+                            print "[INFO] Creating directory %s" % (new_dir)
+                            if os.path.isdir(new_dir):
+                                continue
+                            os.makedirs(new_dir)
                 else:
                     print "[INFO] File %s not found" % (os.path.join(dirname, newfile))
             else:
