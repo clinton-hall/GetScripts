@@ -143,7 +143,7 @@ def rename_script(dirname):
             else:
                 continue
 def rename_cmd(cmd, dirname):
-    if len(cmd) == 2 and os.path.isfile(os.path.join(dirname, cmd[0])):
+    if len(cmd) == 2 and os.path.exists(os.path.join(dirname, cmd[0])):
         orig = os.path.join(dirname, cmd[0].replace('\\',os.path.sep).replace('/',os.path.sep))
         dest = os.path.join(dirname, cmd[1].replace('\\',os.path.sep).replace('/',os.path.sep))
         if os.path.isfile(dest):
