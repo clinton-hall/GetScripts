@@ -150,6 +150,8 @@ def rename_cmd(cmd, dirname):
             return
         print "[INFO] Renaming file %s to %s" % (orig, dest)
         try:
+            if not os.path.exists(os.path.split(dest)[0]):
+                os.makedirs(os.path.split(dest)[0])
             os.rename(orig, dest)
         except Exception,e:
             print "[ERROR] Unable to rename file due to: %s" % (str(e))
