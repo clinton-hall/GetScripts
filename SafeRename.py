@@ -109,7 +109,7 @@ def rename_script(dirname):
             if re.search('^(mv|Move)', line, re.IGNORECASE):
                 rename_cmd(shlex.split(line)[1:], dirname)
             if re.search('^(unrar)', line, re.IGNORECASE):
-                cmd = shlex.split(line)
+                cmd = extract_command(shlex.split(line), dirname)
                 devnull = open(os.devnull, 'w')
                 print "[INFO] Extracting file %s with command %s" % (rename_file, line)
                 pwd = os.getcwd()  # Get our Present Working Directory
@@ -156,6 +156,57 @@ def rename_cmd(cmd, dirname):
         except Exception,e:
             print "[ERROR] Unable to rename file due to: %s" % (str(e))
             sys.exit(NZBGET_POSTPROCESS_ERROR)
+
+def extract_command(cmd, dir):
+    # Using Windows
+    if platform.system() == 'Windows':
+        if not os.path.exists(SEVENZIP):
+            print(" Could not find 7-zip, Exiting")
+            sys.exit(NZBGET_POSTPROCESS_ERROR)
+        else:
+            cmd_7zip = [SEVENZIP, "x", "-y"]
+            ext_7zip = [".rar", ".zip", ".tar.gz", "tgz", ".tar.bz2", ".tbz", ".tar.lzma", ".tlz", ".7z", ".xz"]
+            EXTRACT_COMMANDS = dict.fromkeys(ext_7zip, cmd_7zip)
+    # Using unix
+    else:
+        required_cmds = ["unrar", "unzip", "tar", "unxz", "unlzma", "7zr", "bunzip2"]
+        EXTRACT_COMMANDS = {
+            ".rar": ["unrar", "x", "-o+", "-y"],
+            ".tar": ["tar", "-xf"],
+            ".zip": ["unzip"],
+            ".tar.gz": ["tar", "-xzf"], ".tgz": ["tar", "-xzf"],
+            ".tar.bz2": ["tar", "-xjf"], ".tbz": ["tar", "-xjf"],
+            ".tar.lzma": ["tar", "--lzma", "-xf"], ".tlz": ["tar", "--lzma", "-xf"],
+            ".tar.xz": ["tar", "--xz", "-xf"], ".txz": ["tar", "--xz", "-xf"],
+            ".7z": ["7zr", "x"],
+        }    # Test command exists and if not, remove
+        devnull = open(os.devnull, 'w')
+        for cmd in required_cmds:
+            if call(['which', cmd], stdout=devnull, stderr=devnull):  #note, returns 0 if exists, or 1 if doesn't exist.
+                if cmd == "7zr" and not call(["which", "7z"]):  # we do have "7z" command
+                    EXTRACT_COMMANDS[".7z"] = ["7z", "x"]
+                elif cmd == "7zr" and not call(["which", "7za"]):  # we do have "7za" command
+                    EXTRACT_COMMANDS[".7z"] = ["7za", "x"]
+                else:
+                    for k, v in EXTRACT_COMMANDS.items():
+                        if cmd in v[0]:
+                            print("%s not found, disabling support for %s" % (cmd, k))
+                            del EXTRACT_COMMANDS[k]
+        devnull.close()
+
+        if not EXTRACT_COMMANDS:
+            print("No archive extracting programs found, plugin will be disabled")
+            sys.exit(NZBGET_POSTPROCESS_ERROR)
+
+    ext = os.path.splitext(cmd[-1])[1]
+    if not os.path.exist(cmd[-1]):
+        newpath = os.path.join(dir, cmd[-1])
+    else:
+        newpath = cmd[-1]
+    newcmd = EXTRACT_COMMANDS[ext]
+    newcmd.extend(cmd[2:-1])
+    newcmd.extend(newpath)
+    return newcmd
 
 rename_script(dirname)
 if os.environ.has_key('NZBOP_SCRIPTDIR'):
