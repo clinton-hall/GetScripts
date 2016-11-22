@@ -200,7 +200,7 @@ def extract_command(cmd, dir):
             sys.exit(NZBGET_POSTPROCESS_ERROR)
 
     ext = os.path.splitext(cmd[-1])[1]
-    if not os.path.exist(cmd[-1]):
+    if not os.path.exists(cmd[-1]):
         newpath = os.path.join(dir, cmd[-1])
     else:
         newpath = cmd[-1]
