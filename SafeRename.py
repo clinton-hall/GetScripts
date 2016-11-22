@@ -18,6 +18,7 @@ import os
 import sys
 import re
 import shlex
+import platform
 from subprocess import call, Popen
 
 # NZBGet Exit Codes
