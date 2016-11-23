@@ -112,7 +112,7 @@ def rename_script(dirname):
             if re.search('^(unrar)', line, re.IGNORECASE):
                 cmd = extract_command(shlex.split(line), dirname)
                 devnull = open(os.devnull, 'w')
-                print "[INFO] Extracting file %s with command %s" % (rename_file, line)
+                print "[INFO] Extracting file %s with command %s" % (rename_file, cmd)
                 pwd = os.getcwd()  # Get our Present Working Directory
                 os.chdir(dirname)  # Not all unpack commands accept full paths, so just extract into this directory
                 p = Popen(cmd, stdout=devnull, stderr=devnull)  # should extract files fine.
@@ -124,7 +124,7 @@ def rename_script(dirname):
                 else:
                     print "[INFO] Extraction failed"
                     sys.exit(NZBGET_POSTPROCESS_ERROR)
-                newfile = os.path.splitext(cmd[-1])[0] + '.sh'
+                newfile = os.path.splitext(cmd[-1])[0] + os.path.splitext(rename_file)[1]
                 print "[INFO] Checking for file %s" % (os.path.join(dirname, newfile))
                 if os.path.isfile(os.path.join(dirname, newfile)):
                     print "[INFO] Reading lines from %s" % (os.path.join(dirname, newfile)) 
@@ -158,7 +158,7 @@ def rename_cmd(cmd, dirname):
             print "[ERROR] Unable to rename file due to: %s" % (str(e))
             sys.exit(NZBGET_POSTPROCESS_ERROR)
 
-def extract_command(cmd, dir):
+def extract_command(cmdin, dir):
     # Using Windows
     if platform.system() == 'Windows':
         if not os.path.exists(SEVENZIP):
@@ -199,14 +199,15 @@ def extract_command(cmd, dir):
             print("No archive extracting programs found, plugin will be disabled")
             sys.exit(NZBGET_POSTPROCESS_ERROR)
 
-    ext = os.path.splitext(cmd[-1])[1]
-    if not os.path.exists(cmd[-1]):
-        newpath = os.path.join(dir, cmd[-1])
+    ext = os.path.splitext(cmdin[-1])[1]
+    if not os.path.exists(cmdin[-1]):
+        newpath = os.path.join(dir, cmdin[-1])
     else:
-        newpath = cmd[-1]
+        newpath = cmdin[-1]
+
     newcmd = EXTRACT_COMMANDS[ext]
-    newcmd.extend(cmd[2:-1])
-    newcmd.extend(newpath)
+    newcmd.extend(cmdin[2:-1])
+    newcmd.append(newpath)
     return newcmd
 
 rename_script(dirname)
