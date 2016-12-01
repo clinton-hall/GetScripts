@@ -98,6 +98,7 @@ else:
 # All checks done, now launching the script.
 def rename_script(dirname):
     rename_file = ""
+    new_dir = ""
     for dir, dirs, files in os.walk(dirname):
         for file in files:
             if re.search('(rename\S*\.(sh|bat)$)',file,re.IGNORECASE) or file == 'What.sh':
@@ -108,7 +109,7 @@ def rename_script(dirname):
         rename_lines = [line.strip() for line in open(rename_file)]
         for line in rename_lines:
             if re.search('^(mv|Move)', line, re.IGNORECASE):
-                rename_cmd(shlex.split(line)[1:], dirname)
+                new_dir = rename_cmd(shlex.split(line)[1:], dirname)
             if re.search('^(unrar)', line, re.IGNORECASE):
                 cmd = extract_command(shlex.split(line), dirname)
                 devnull = open(os.devnull, 'w')
@@ -132,7 +133,7 @@ def rename_script(dirname):
                     print "[INFO] Parsing %s lines from %s" % (str(len(rename_lines2)), os.path.join(dirname, newfile))
                     for line2 in rename_lines2:
                         if re.search('^(mv|Move)', line2, re.IGNORECASE):
-                            rename_cmd(shlex.split(line2)[1:], dirname)
+                            new_dir = rename_cmd(shlex.split(line2)[1:], dirname)
                         if re.search('^(mkdir)', line2, re.IGNORECASE):
                             new_dir = os.path.join(dirname, shlex.split(line2)[-1])
                             print "[INFO] Creating directory %s" % (new_dir)
@@ -143,6 +144,13 @@ def rename_script(dirname):
                     print "[INFO] File %s not found" % (os.path.join(dirname, newfile))
             else:
                 continue
+
+    if new_dir:
+        out_dir = os.path.join(os.path.split(dirname)[0], os.path.split(new_dir)[1])
+        if not os.path.exists(out_dir):
+            os.rename(dirname, out_dir)
+            print "[NZB] DIRECTORY=%s" % (out_dir)
+
 def rename_cmd(cmd, dirname):
     if len(cmd) == 2 and os.path.exists(os.path.join(dirname, cmd[0])):
         orig = os.path.join(dirname, cmd[0].replace('\\',os.path.sep).replace('/',os.path.sep))
@@ -154,6 +162,7 @@ def rename_cmd(cmd, dirname):
             if not os.path.exists(os.path.split(dest)[0]):
                 os.makedirs(os.path.split(dest)[0])
             os.rename(orig, dest)
+            return dest
         except Exception,e:
             print "[ERROR] Unable to rename file due to: %s" % (str(e))
             sys.exit(NZBGET_POSTPROCESS_ERROR)
