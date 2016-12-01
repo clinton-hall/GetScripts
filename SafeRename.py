@@ -100,8 +100,8 @@ elif len(sys.argv) >= 8:
     dirname = sys.argv[1]
     status = sys.argv[7]
 
-    CHMOD = None
-    CLEANUP = []
+    CHMOD = int("0775", 8)
+    CLEANUP = [".sh", ".bat"]
 
     if status == 1:
         sys.exit(0)
