@@ -14,12 +14,12 @@
 # CHMOD.
 #
 # Enter the octal permissions to be applied to extracted/created directories.
-#CHMOD="0775"
+#CHMOD=0775
 
 # CleanUp.
 # Enter the comma separated extensions of files to be removed after successful extraction/rename.
 # e.g. .sh,.rar,.zip,.bat
-#CleanUp=".sh,.bat"
+#CleanUp=.sh,.bat
 
 ### NZBGET POST-PROCESSING SCRIPT                                          ###
 ##############################################################################
