@@ -114,6 +114,7 @@ else:
 def rename_script(dirname):
     rename_file = ""
     new_dir = ""
+    new_dir2 = ""
     for dir, dirs, files in os.walk(dirname):
         for file in files:
             if re.search('(rename\S*\.(sh|bat)$)',file,re.IGNORECASE) or file == 'What.sh':
@@ -124,7 +125,7 @@ def rename_script(dirname):
         rename_lines = [line.strip() for line in open(rename_file)]
         for line in rename_lines:
             if re.search('^(mv|Move)', line, re.IGNORECASE):
-                new_dir = rename_cmd(shlex.split(line)[1:], dirname)
+                new_dir2 = rename_cmd(shlex.split(line)[1:], dirname)
             if re.search('^(unrar)', line, re.IGNORECASE):
                 cmd = extract_command(shlex.split(line), dirname)
                 devnull = open(os.devnull, 'w')
@@ -148,7 +149,7 @@ def rename_script(dirname):
                     print "[INFO] Parsing %s lines from %s" % (str(len(rename_lines2)), os.path.join(dirname, newfile))
                     for line2 in rename_lines2:
                         if re.search('^(mv|Move)', line2, re.IGNORECASE):
-                            new_dir = rename_cmd(shlex.split(line2)[1:], dirname)
+                            new_dir2 = rename_cmd(shlex.split(line2)[1:], dirname)
                         if re.search('^(mkdir)', line2, re.IGNORECASE):
                             new_dir = os.path.join(dirname, shlex.split(line2)[-1])
                             print "[INFO] Creating directory %s" % (new_dir)
@@ -169,6 +170,11 @@ def rename_script(dirname):
                 except:
                     print "Error: unable to delete file", filePath
 
+    if not new_dir and new_dir2:
+        if os.path.split(new_dir2)[0] == dirname:
+            new_dir = os.path.splitext(new_dir2)[0]
+        else:
+            new_dir = os.path.split(new_dir2)[0]
     if new_dir:
         if CHMOD:
             logger.log("Changing file mode of {0} to {1}".format(new_dir, oct(CHMOD)))
