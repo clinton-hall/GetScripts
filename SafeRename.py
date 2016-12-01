@@ -9,8 +9,17 @@
 #
 # NOTE: This script requires Python to be installed on your system.
 ##############################################################################
+### OPTIONS                                                                ###
+
+# CHMOD.
 #
-#
+# Enter the octal permissions to be applied to extracted/created directories.
+#CHMOD="0775"
+
+# CleanUp.
+# Enter the comma separated extensions of files to be removed after successful extraction/rename.
+# e.g. .sh,.rar,.zip,.bat
+#CleanUp=".sh,.bat"
 
 ### NZBGET POST-PROCESSING SCRIPT                                          ###
 ##############################################################################
@@ -72,6 +81,9 @@ if os.environ.has_key('NZBOP_SCRIPTDIR'):
 
     dirname = os.path.normpath(os.environ['NZBPP_DIRECTORY'])
 
+    CHMOD = int(str(os.environ["CHMOD"]), 8)
+    CLEANUP = os.environ["CLEANUP"].split(',')
+
 # SABnzbd
 elif len(sys.argv) >= 8:
     # SABnzbd argv:
@@ -87,6 +99,9 @@ elif len(sys.argv) >= 8:
     print "Script triggered from SABnzbd"
     dirname = sys.argv[1]
     status = sys.argv[7]
+
+    CHMOD = None
+    CLEANUP = []
 
     if status == 1:
         sys.exit(0)
@@ -145,7 +160,25 @@ def rename_script(dirname):
             else:
                 continue
 
+    for dir, dirs, files in os.walk(dirname):
+        for file in files:
+            filepath = os.path.join(dir, file)
+            if os.path.splitext(file)[1] in CLEANUP:
+                try:
+                    os.unlink(filepath)
+                except:
+                    print "Error: unable to delete file", filePath
+
     if new_dir:
+        if CHMOD:
+            logger.log("Changing file mode of {0} to {1}".format(new_dir, oct(CHMOD)))
+            os.chmod(new_dir, CHMOD)
+            for dir, dirs, files in os.walk(new_dir):
+                for dirname in dirs:
+                    os.chmod(os.path.join(dir, dirname), CHMOD)
+                for file in files:
+                    os.chmod(os.path.join(dir, file), CHMOD)
+
         out_dir = os.path.join(os.path.split(dirname)[0], os.path.split(new_dir)[1])
         if not os.path.exists(out_dir):
             os.rename(dirname, out_dir)
