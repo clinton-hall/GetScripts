@@ -81,8 +81,8 @@ if os.environ.has_key('NZBOP_SCRIPTDIR'):
 
     dirname = os.path.normpath(os.environ['NZBPP_DIRECTORY'])
 
-    CHMOD = int(str(os.environ["CHMOD"]), 8)
-    CLEANUP = os.environ["CLEANUP"].split(',')
+    CHMOD = int(str(os.environ["NZBPO_CHMOD"]), 8)
+    CLEANUP = os.environ["NZBPO_CLEANUP"].split(',')
 
 # SABnzbd
 elif len(sys.argv) >= 8:
