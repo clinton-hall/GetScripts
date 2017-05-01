@@ -177,7 +177,7 @@ def rename_script(dirname):
             new_dir = os.path.split(new_dir2)[0]
     if new_dir:
         if CHMOD:
-            logger.log("Changing file mode of {0} to {1}".format(new_dir, oct(CHMOD)))
+            print "[INFO] Changing file mode of {0} to {1}".format(new_dir, oct(CHMOD))
             os.chmod(new_dir, CHMOD)
             for dir, dirs, files in os.walk(new_dir):
                 for dirname in dirs:
