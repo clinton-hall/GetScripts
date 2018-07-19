@@ -160,6 +160,7 @@ def rename_cmd(cmd, dirname):
 def extract_command(cmd, dir):
     # Using Windows
     if platform.system() == 'Windows':
+        SEVENZIP = "C:\\Program Files\\7-Zip\\7z.exe"
         if not os.path.exists(SEVENZIP):
             print(" Could not find 7-zip, Exiting")
             sys.exit(NZBGET_POSTPROCESS_ERROR)
