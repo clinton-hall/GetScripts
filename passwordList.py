@@ -59,42 +59,42 @@ NZBGET_POSTPROCESS_SUCCESS = 93
 NZBGET_POSTPROCESS_ERROR = 94
 NZBGET_POSTPROCESS_NONE = 95
 
-if not os.environ.has_key('NZBOP_SCRIPTDIR'):
-    print "This script can only be called from NZBGet (11.0 or later)."
+if 'NZBOP_SCRIPTDIR' not in os.environ:
+    print("This script can only be called from NZBGet (11.0 or later).")
     sys.exit(0)
 
 if os.environ['NZBOP_VERSION'][0:5] < '11.0':
-    print "NZBGet Version %s is not supported. Please update NZBGet." % (str(os.environ['NZBOP_VERSION']))
+    print("NZBGet Version %s is not supported. Please update NZBGet." % (str(os.environ['NZBOP_VERSION'])))
     sys.exit(0)
 
-print "Script triggered from NZBGet Version %s." % (str(os.environ['NZBOP_VERSION']))
+print("Script triggered from NZBGet Version %s." % (str(os.environ['NZBOP_VERSION'])))
 status = 0
-if os.environ.has_key('NZBPP_TOTALSTATUS'):
+if 'NZBPP_TOTALSTATUS' in os.environ:
     if not os.environ['NZBPP_TOTALSTATUS'] == 'SUCCESS':
-        print "Download failed with status %s." % (os.environ['NZBPP_STATUS'])
+        print("Download failed with status %s." % (os.environ['NZBPP_STATUS']))
         status = 0
 
 else:
     # Check par status
     if os.environ['NZBPP_PARSTATUS'] == '1' or os.environ['NZBPP_PARSTATUS'] == '4':
-        print "Par-repair failed, setting status \"failed\"."
+        print("Par-repair failed, setting status \"failed\".")
         status = 1
 
     if os.environ['NZBPP_UNPACKSTATUS'] == '0' and os.environ['NZBPP_PARSTATUS'] == '0':
         # Unpack was skipped due to nzb-file properties or due to errors during par-check
 
         if os.environ['NZBPP_HEALTH'] < 1000:
-            print "Download health is compromised and Par-check/repair disabled or no .par2 files found. Setting status \"failed\"."
-            print "Please check your Par-check/repair settings for future downloads."
+            print("Download health is compromised and Par-check/repair disabled or no .par2 files found. Setting status \"failed\".")
+            print("Please check your Par-check/repair settings for future downloads.")
             status = 1
 
         else:
-            print "Par-check/repair disabled or no .par2 files found, and Unpack not required. Health is ok so handle as though download successful."
-            print "Please check your Par-check/repair settings for future downloads."
+            print("Par-check/repair disabled or no .par2 files found, and Unpack not required. Health is ok so handle as though download successful.")
+            print("Please check your Par-check/repair settings for future downloads.")
 
 # Check if destination directory exists (important for reprocessing of history items)
 if not os.path.isdir(os.environ['NZBPP_DIRECTORY']):
-    print "Nothing to post-process: destination directory", os.environ['NZBPP_DIRECTORY'], "doesn't exist. Setting status \"failed\"."
+    print("Nothing to post-process: destination directory", os.environ['NZBPP_DIRECTORY'], "doesn't exist. Setting status \"failed\".")
     status = 1
 
 # All checks done, now launching the script.
@@ -137,9 +137,9 @@ else:
             elif cmd == "7zr" and not call(["which", "7za"]):  # we do have "7za" command
                 EXTRACT_COMMANDS[".7z"] = ["7za", "x"]
             else: 
-                for k, v in EXTRACT_COMMANDS.items():
+                for k, v in list(EXTRACT_COMMANDS.items()):
                     if cmd in v[0]:
-                        print("%s not found, disabling support for %s" % (cmd, k))
+                        print(("%s not found, disabling support for %s" % (cmd, k)))
                         del EXTRACT_COMMANDS[k]
     devnull.close()
 
@@ -178,7 +178,7 @@ def extract(directory, filePath):
         if os.path.splitext(ext[0])[1] == ".tar":
             cmd = EXTRACT_COMMANDS[".tar" + ext[1]]
     elif ext[1] in (".cb7", ".cba", ".cbr", ".cbt", ".cbz"):  # don't extract these comic book archives.
-        print "don't extract these comic book archives"
+        print("don't extract these comic book archives")
         return True
     elif ext[1] in EXTRACT_COMMANDS:
         if re.match(".part\d+", os.path.splitext(ext[0])[1]):
@@ -188,7 +188,7 @@ def extract(directory, filePath):
         if part == 1:
             cmd = EXTRACT_COMMANDS[ext[1]]
         else:
-            print("ignoring part %s" % part)
+            print(("ignoring part %s" % part))
             return True
     elif os.path.splitext(ext[0])[1] in EXTRACT_COMMANDS:
         if re.match(".part\d+", ext[1]):
@@ -198,19 +198,19 @@ def extract(directory, filePath):
         if part == 1:
             cmd = EXTRACT_COMMANDS[os.path.splitext(ext[0])[1]]
         else:
-            print("ignoring part %s" % part)
+            print(("ignoring part %s" % part))
             return True
     else:
-            print("Not a known archive file type: %s" % ext[1])
+            print(("Not a known archive file type: %s" % ext[1]))
             return True
 
-    print("Extracting %s" % (filePath))
+    print(("Extracting %s" % (filePath)))
     if PASSWORDSFILE != "" and os.path.isfile(PASSWORDSFILE):
         passwords = [line.strip() for line in open(os.path.normpath(PASSWORDSFILE))]
-        print("Found %s passwords to try" % (len(passwords)))
+        print(("Found %s passwords to try" % (len(passwords))))
     else:
         passwords = []
-        print("Could not find password file %s" % (PASSWORDSFILE))
+        print(("Could not find password file %s" % (PASSWORDSFILE)))
 
     pwd = os.getcwd()  # Get our Present Working Directory
     os.chdir(directory)  # Not all unpack commands accept full paths, so just extract into this directory
@@ -227,11 +227,11 @@ def extract(directory, filePath):
         res = p.wait()
 
         if res == 0:
-            print("Extraction was successful for %s" % (filePath))
+            print(("Extraction was successful for %s" % (filePath)))
             success = 1
         elif len(passwords) > 0:
             for password in passwords:
-                print("Attempting to extract with password [%s]" % password)
+                print(("Attempting to extract with password [%s]" % password))
                 if password == "":  # if edited in windows or otherwise if blank lines.
                     continue
                 cmd2 = cmd
@@ -242,16 +242,16 @@ def extract(directory, filePath):
                 p = Popen(cmd2, stdout=devnull, stderr=devnull)  # should extract files fine.
                 res = p.wait()
                 if res == 0:
-                    print("Extraction was successful for %s using password: %s" % (
-                    filePath, password))
+                    print(("Extraction was successful for %s using password: %s" % (
+                    filePath, password)))
                     success = 1
                     break
                 else:
-                    print("Extraction failed for %s using password: %s" % (
-                    filePath, password))
+                    print(("Extraction failed for %s using password: %s" % (
+                    filePath, password)))
                     continue
     except:
-        print("Extraction failed for %s. Could not call command %s" % (filePath, cmd))
+        print(("Extraction failed for %s. Could not call command %s" % (filePath, cmd)))
         devnull.close()
         os.chdir(pwd)
         return False
@@ -263,7 +263,7 @@ def extract(directory, filePath):
         sleep (3)
         return True
     else:
-        print("Extraction failed for %s. Result was %s" % (filePath, res))
+        print(("Extraction failed for %s. Result was %s" % (filePath, res)))
         return False
 
 failed = 0
